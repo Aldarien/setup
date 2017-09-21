@@ -9,10 +9,3 @@ composer.phar
 .settings
 .buildpath
 .project
-
-config
-features
-setup
-spec
-src
-phpspec.yml
