@@ -3,8 +3,8 @@
 	"description" : "Setup plugin for database and configuration setup",
 	"type" : "library",
 	"require-dev" : {
-		"behat/behat" : "^3.4",
-		"phpspec/phpspec" : "^4.0"
+		"phpspec/phpspec" : "^4.0",
+		"phpunit/phpunit" : "^6.3"
 	},
 	"license" : "MIT",
 	"authors" : [{
@@ -20,6 +20,6 @@
 	"require" : {
 		"aldarien/config" : "^1.0",
 		"j4mie/idiorm" : "^1.5",
-		"danielstjules/stringy": "^3.1"
+		"danielstjules/stringy" : "^3.1"
 	}
 }

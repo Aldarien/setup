@@ -12,36 +12,13 @@ class SetupSpec extends ObjectBehavior
     {
         $this->shouldHaveType(Setup::class);
     }
-    function it_finds_setup_directory()
+    function it_loads_models()
     {
-    	$directory = root() . '\\setup';
-    	if (file_exists($directory)) {
-    		$this->findDirectory()->shouldReturn($directory);
-    	} else {
-    		$this->shouldThrow('\DomainException')->during('findDirectory');
-    	}
+    	$this->getModelList()->shouldReturnType('array');
+    	$this->getSpecifications($model_name)->shoudlReturnType('array');
+    	$this->createMigration($specifications)->shouldReturnType('string');
     }
-    function it_finds_models()
-    {
-    	$this->findModels();
-    }
-    function it_gets_properties()
-    {
-    	$this->getProperties(new \Test());
-    }
-    function it_makes_migrations()
-    {
-    	$this->createMigrations();
-    }
-    function it_runs_migrations()
-    {
-    	
-    }
-    function it_finds_seeds()
-    {
-    	
-    }
-    function it_runs_seeds()
+    function it_migrates()
     {
     	
     }
