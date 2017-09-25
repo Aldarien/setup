@@ -3,26 +3,28 @@ class Column
 {
 	protected $name;
 	protected $type;
-	protected $length;
 	protected $attributes;
 	protected $options;
-	protected $default;
-	protected $charset;
 	
 	public function setName(string $name)
 	{
 		$this->name = $name;
+		return $this;
 	}
 	public function setType(string $type, $options = null)
 	{
 		switch (strtolower($type)) {
 			case 'integer':
 				$type = 'INT';
-				$this->setLength($options);
+				if ($options != null) {
+					$this->setOptions($options);
+				}
 				break;
 			case 'string':
 				$type = 'VARCHAR';
-				$this->setLength($options);
+				if ($options != null) {
+					$this->setOptions($options);
+				}
 				break;
 			case 'int':
 			case 'varchar':
@@ -42,14 +44,15 @@ class Column
 			case 'longtext':
 			case 'enum':
 			case 'set':
-				$this->setOptions($options);
 			case 'bit':
 			case 'time':
 			case 'timestamp':
 			case 'datetime':
 			case 'binary':
 			case 'varbinary':
-				$this->setLength($options);
+				if ($options != null) {
+					$this->setOptions($options);
+				}
 			case 'date':
 			case 'year':
 			case 'tinyblob':
@@ -58,49 +61,119 @@ class Column
 			case 'longblob':
 			case 'json':
 				$type = strtoupper($type);
+				break;
 			default:
-				return;
+				return $this;
 		}
 		$this->type = $type;
+		
+		return $this;
 	}
-	protected function setLength($options)
+	public function setAttributes(array $attributes)
 	{
-		if (is_array($options) and isset($options['length'])) {
-			$this->length = $options['length'];
-		} elseif (!is_array($options) and is_numeric($options)) {
-			$this->length = $options;
+		foreach ($attributes as $attr => $val) {
+			$this->addAttribute($attr, $val);
 		}
+		return $this;
 	}
-	public function addAttribute(string $name)
+	public function addAttribute(string $name, bool $value = true)
 	{
 		switch (strtolower($name)) {
-			case 'auto_increment':
-			case 'unique':
-			case 'unique key':
 			case 'key':
 			case 'primary':
 			case 'primary key':
-				$this->attributes[strtoupper($name)] = true;
+				$this->addAttribute('auto_increment');
+			case 'auto_increment':
+			case 'unique':
+			case 'unique key':
+			case 'unsigned':
+			case 'binary':
+			case 'zerofill':
+			case 'null':
+				$this->attributes[strtoupper($name)] = $value;
 		}
+		return $this;
+	}
+	public function setOptions(array $options)
+	{
+		foreach ($options as $key => $value) {
+			switch (strtolower($key)) {
+				case 'length':
+				case 'fsp':
+				case 'decimals':
+				case 'character set':
+				case 'collate':
+				case 'default':
+					$this->options[strtoupper($key)] = $value;
+					break;
+				default:
+					if (is_array($value)) {
+						$this->options['LENGTH'] = implode(', ', $value);
+					}
+					break;
+			}
+		}
+		return $this;
 	}
 	public function __get(string $name)
 	{
 		return $this->$name;
 	}
+	public function isIndex()
+	{
+		if (isset($this->attributes['PRIMARY']) or isset($this->attributes['KEY']) or isset($this->attributes['PRIMARY KEY'])) {
+			return true;
+		}
+		return false;
+	}
+	public function getOptions()
+	{
+		$options = $this->options;
+		if ($options == null) {
+			return '';
+		}
+		$str = '';
+		if (isset($options['LENGTH']) or isset($options['FSP']) or isset($options['DECIMALS'])) {
+			$str .= '(';
+			if (isset($options['LENGTH'])) {
+				$str .= $options['LENGTH'];
+				if (isset($options['DECIMALS'])) {
+					$str .= ',' . $options['DECIMALS'];
+				}
+			} elseif (isset($options['FSP'])) {
+				$str .= $options['FSP'];
+			}
+			$str .= ')';
+		}
+		
+		unset($options['LENGTH']);
+		unset($options['DECIMALS']);
+		unset($options['FSP']);
+		
+		foreach ($options as $key => $val) {
+			if (is_bool($val) and $val) {
+				$str .= ' ' . $key;
+				continue;
+			}
+			$str .= ' ' . $key . ' `' . $val . '`';
+		}
+		return trim($str);
+	}
 	public function showDefinition()
 	{
 		$str = ['`' . $this->name . '`', $this->type];
-		switch ($this->type) {
-			case 'varchar':
-				$str []= '(' . $this->size . ')';
-				break;
-		}
-		if ($this->default != null) {
-			$str []= 'DEFAULT ' . $this->default;
+		if ($this->getOptions()) {
+			$str []= $this->getOptions();
 		}
 		if ($this->attributes != null) {
-			
+			foreach ($this->attributes as $attr => $status) {
+				if (!$status) {
+					$str []= 'NOT';
+				}
+				$str []= $attr;
+			}
 		}
+		return implode(' ', $str);
 	}
 }
 ?>

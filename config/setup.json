@@ -1,0 +1,23 @@
+{
+	"models": {
+		"Test": {
+			"table": "test",
+			"columns": {
+				"id": {
+					"type": "int",
+					"attributes": {
+						"primary": true,
+						"auto_increment": true,
+						"null": false
+					}
+				},
+				"name": {
+					"type": "string",
+					"options": {
+						"length": 50
+					}
+				}
+			}
+		}
+	}
+}
