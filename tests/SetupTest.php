@@ -15,10 +15,19 @@ class SetupTest extends TestCase
 	}
 	public function tearDown()
 	{
+		$this->clear();
+		
+	}
+	protected function clear()
+	{
 		$db = database();
-		$db->query("SELECT concat('DROP TABLE IF EXISTS ', table_name, ';')
+		$st = $db->query("SELECT CONCAT('DROP TABLE IF EXISTS ', table_name, ';')
 						FROM information_schema.tables
 						WHERE table_schema = '" . get('database.database') . "'");
+		$results = $st->fetchAll(PDO::FETCH_NUM);
+		foreach ($results as $r) {
+			$db->query($r[0]);
+		}
 	}
 	public function testGetModels()
 	{

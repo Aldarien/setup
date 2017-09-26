@@ -5,7 +5,7 @@ use App\Service\Setup as SetupService;
 
 class Setup
 {
-	use Contract;
+	use \App\Definition\Contract;
 	
 	protected static function newInstance()
 	{
