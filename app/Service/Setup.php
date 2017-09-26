@@ -74,10 +74,14 @@ class Setup
     		$this->getSQL();
     	}
     	$db = database();
-    	foreach ($this->creations as $create) {
-    		var_dump($create);
-    		$st = $db->query($create);
+    	try {
+	    	foreach ($this->creations as $create) {
+	    		$st = $db->query($create);
+	    	}
+	    	return true;
+    	} catch (\PDOException $e) {
+    		var_dump($e->getMessage());
     	}
-    	return true;
+    	return false;
     }
 }

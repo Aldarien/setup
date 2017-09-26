@@ -4,7 +4,8 @@
 	"type" : "library",
 	"require-dev" : {
 		"phpspec/phpspec" : "^4.0",
-		"phpunit/phpunit" : "^6.3"
+		"phpunit/phpunit" : "^6.3",
+		"aldarien/ufapi": "^1.0"
 	},
 	"license" : "MIT",
 	"authors" : [{
@@ -25,7 +26,6 @@
 		"aldarien/config" : "^1.0",
 		"j4mie/idiorm" : "^1.5",
 		"danielstjules/stringy" : "^3.1",
-		"composer/composer": "^1.5",
-		"aldarien/ufapi": "^1.0"
+		"composer/composer": "^1.5"
 	}
 }

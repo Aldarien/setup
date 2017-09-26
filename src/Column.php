@@ -14,12 +14,6 @@ class Column
 	public function setType(string $type, $options = null)
 	{
 		switch (strtolower($type)) {
-			case 'integer':
-				$type = 'INT';
-				if ($options != null) {
-					$this->setOptions($options);
-				}
-				break;
 			case 'string':
 				$type = 'VARCHAR';
 				if ($options != null) {
@@ -27,6 +21,7 @@ class Column
 				}
 				break;
 			case 'int':
+			case 'integer':
 			case 'varchar':
 			case 'tinyint':
 			case 'smallint':
@@ -82,17 +77,90 @@ class Column
 			case 'key':
 			case 'primary':
 			case 'primary key':
+				if (isset($this->attributes['UNIQUE KEY'])) {
+					unset($this->attributes['UNIQUE KEY']);
+				}
+				$this->attributes['PRIMARY KEY'] = $value;
 				$this->addAttribute('auto_increment');
-			case 'auto_increment':
+				break;
 			case 'unique':
 			case 'unique key':
+				if (isset($this->attributes['PRIMARY KEY'])) {
+					break;
+				}
+				$this->attributes['UNIQUE KEY'] = $value;
+				break;
 			case 'unsigned':
 			case 'binary':
 			case 'zerofill':
+				if (!$this->validAttribute($name)) {
+					break;
+				}
+			case 'auto_increment':
 			case 'null':
 				$this->attributes[strtoupper($name)] = $value;
+				break;
 		}
+		$this->sortAttributes();
 		return $this;
+	}
+	protected function validAttribute(string $attribute)
+	{
+		switch (strtolower($this->type)) {
+			case 'date':
+			case 'year':
+			case 'tinyblob':
+			case 'blob':
+			case 'mediumblob':
+			case 'longblob':
+			case 'json':
+			case 'bit':
+			case 'time':
+			case 'timestamp':
+			case 'datetime':
+			case 'binary':
+			case 'varbinary':
+			case 'enum':
+			case 'set':
+				return false;
+			case 'char':
+			case 'tinytext':
+			case 'text':
+			case 'mediumtest':
+			case 'longtext':
+				if (strtolower($attribute) == 'binary') {
+					return true;
+				}
+				return false;
+			case 'int':
+			case 'integer':
+			case 'varchar':
+			case 'tinyint':
+			case 'smallint':
+			case 'mediumint':
+			case 'bigint':
+			case 'real':
+			case 'double':
+			case 'float':
+			case 'decimal':
+			case 'numeric':
+				if (strtolower($attribute) == 'binary') {
+					return false;
+				}
+				return true;
+		}
+	}
+	protected function sortAttributes()
+	{
+		$keys = ['unsigned', 'zerofill', 'binary', 'null', 'auto_increment', 'primary key', 'unique key'];
+		$output = [];
+		foreach ($keys as $i) {
+			$i = strtoupper($i);
+			if (isset($this->attributes[$i])) {
+				$output[$i] = $this->attributes[$i];
+			}
+		}
+		$this->attributes = $output;
 	}
 	public function setOptions(array $options)
 	{

@@ -16,9 +16,9 @@ class SetupTest extends TestCase
 	public function tearDown()
 	{
 		$db = database();
-		/*$db->query("SELECT concat('DROP TABLE IF EXISTS ', table_name, ';')
+		$db->query("SELECT concat('DROP TABLE IF EXISTS ', table_name, ';')
 						FROM information_schema.tables
-						WHERE table_schema = '" . get('database.database') . "'");*/
+						WHERE table_schema = '" . get('database.database') . "'");
 	}
 	public function testGetModels()
 	{
@@ -33,7 +33,16 @@ class SetupTest extends TestCase
 		$this->setup->upload();
 		$db = database();
 		$st = $db->query('SHOW TABLES');
-		var_dump($st);
+		$actual = $st->fetchAll(PDO::FETCH_OBJ);
+		$expected = [
+				(object) [
+						"Tables_in_test" => 'test'
+				],
+				(object) [
+						"Tables_in_test" => 'ufs'
+				]
+		];
+		$this->assertEquals($expected, $actual);
 	}
 }
 ?>
